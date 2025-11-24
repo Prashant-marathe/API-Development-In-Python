@@ -1,0 +1,42 @@
+from fastapi import FastAPI, Header
+from typing import Optional
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class UserCreateModel(BaseModel):
+    name: str
+    age: int
+    occupation: str
+
+@app.get("/")
+async def read_root():
+    return {'message': "Hello World"}
+
+@app.get("/user/{name}")
+async def get_user(name:str) -> dict:
+    return {'message': f'Hello {name}'}
+
+@app.get("/user")
+async def get_details(name:Optional[str] = "User", age:Optional[int] = 0) -> dict:
+    return {'message': f'name: {name} and age: {age}'}
+
+@app.get("/get_headers", status_code=200)
+async def get_headers(
+    accept:str = Header(None),
+    content_type:str = Header(None),
+    user_agent:str = Header(None),
+    host:str = Header(None)
+):
+    request_headers = {
+        "Accept": accept,
+        "Content_Type": content_type,
+        "User-Agent": user_agent,
+        "Host": host
+    }
+
+    return request_headers
+
+@app.post("/create_user")
+async def create_user(user:UserCreateModel) -> dict:
+    return {'name': user.name, 'age': user.age, 'occupation': user.occupation}
